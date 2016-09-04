@@ -1,16 +1,31 @@
 require 'pry'
+require_relative 'vector'
+require_relative 'move'
+
 module PositionReader
   CELLSIZE = 2
   def read(position)
     position = parse position
-    5.times.map{|a| 5.times.map{|b| [position.shift]}}
+    5.times.map do |a|
+      5.times.map do |b|
+        position.shift
+      end
+    end
   end
 
   def read2(position)
     position = parse position
     [
-      5.times.map{|a| 5.times.map{|b| [position.shift]}},
-      5.times.map{|a| 5.times.map{|b| [position.shift]}}
+      5.times.map do |a|
+        5.times.map do
+          |b| position.shift
+        end
+      end,
+      5.times.map do |a|
+        5.times.map do |b|
+          position.shift
+        end
+      end
     ]
   end
 
@@ -41,26 +56,36 @@ class Field
   end
 
   def bpieces
-    vectors = []
-    position.each_with_index do |r, ri|
-      r.each_with_index do |c, ci|
-        vectors << [ri, ci] if (c.include?("bc")|| c.include?("bs"))
-      end
-    end
-    vectors.map{|v| v.map{|i| i - 2}}
+    vectorify position, /bs|bc/
   end
 
   def bmoves
-    moveset1 = vectorify bmovement.first
-    bpieces.map do |piece|
+    moveset1 = vectorify(bmovement.first, /kk/)
+    moves = bpieces.flat_map do |piece|
       moveset1.map do |move|
-        p "piece: %s, move: %s" % [piece, move]
+        #STDOUT.puts "piece: %s, move: %s, p2m: %s" % [piece, move, (piece + move)]
+        Move.new(piece, move)
       end
     end
-    binding.pry;2
+
+    moves.select do |move|
+      move.legal? CELLSIZE
+    end.reject do |move|
+      bpieces.include? move.destination
+    end
+  end
+
+  def make move
+    piece = position[move.piece.position[0]][move.piece.position[1]]
+    position[move.piece.position[0]][move.piece.position[1]] = "--"
+    position[move.destination.position[0]][move.destination.position[1]] = piece
   end
 
   private
+
+  def reverse movement
+    movement.reverse
+  end
 
   def nb
     position.flatten.count{|c| c =~ /b./}
@@ -70,14 +95,14 @@ class Field
     position.flatten.count{|c| c =~ /w./}
   end
 
-  def vectorify movement
+  def vectorify movement, filter
     vectors = []
-    bmovement.first.each_with_index do |r, ri|
+    movement.each_with_index do |r, ri|
       r.each_with_index do |c, ci|
-        vectors << [ri, ci] if c.include? "kk"
+        vectors << Vector.new([ci, ri]) if c =~ filter
       end
     end
-    vectors = vectors.map{|v| v.map{|i| i - 2}}
+    vectors = vectors.map{|v| v + Vector.new([-2, -2])}
   end
 end
 
