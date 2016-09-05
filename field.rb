@@ -89,9 +89,6 @@ class Field
     else
       raise "don't know whose turn it is"
     end
-    puts "turn: #{turn}"
-    puts "pieces: #{pieces}"
-    puts "movement: #{movement}"
 
     moveset1 = vectorify(movement.first, /kk/)
     moves = pieces.flat_map do |piece|
@@ -99,16 +96,13 @@ class Field
         Move.new(piece, move)
       end
     end
-    puts "moves: #{moves.map(&:to_s)}"
 
     t = moves.select do |move|
       move.legal? CELLSIZE
     end
-    puts "legal moves: #{t}"
     t = t.reject do |move|
       pieces.include? move.destination
     end
-    puts "self-less moves: #{t}"
     t
   end
 
@@ -128,7 +122,7 @@ class Field
     end
   end
 
-  def evaluate move
+  def evaluate1 move
     future = Field.new(to_s)
     future.make move
     future.score(color)
@@ -137,21 +131,25 @@ class Field
   def evaluate2 move
     future = Field.new(to_s)
     future.make move
-    future.make_a_move!
+    future.make_a_move! :evaluate1
     future.score(color)
   end
 
-  def make_a_move!
+  def evaluate3 move
+    future = Field.new(to_s)
+    future.make move
+    future.make_a_move! :evaluate2
+    future.score(color)
+  end
+
+  def make_a_move! evaluate=:evaluate3
     t = moves.map do |move|
-      [evaluate(move), move]
+      [send(evaluate, move), move]
     end
-    #puts "t: #{t}"
     max_score = t.map{|e| e.first}.max
-    #puts "max_score: #{max_score}"
 
     high_moves = t.select{|move| move.first == max_score}
 
-    puts "high moves: #{high_moves}"
     picked_move = high_moves.shuffle.first[1]
 
     make picked_move
@@ -180,7 +178,6 @@ class Field
     a = position.flatten.select do |c|
       c =~ /w./
     end
-    #puts "position flatten select: #{a}"
     b = a.map do |c|
       case c
       when /wc/; 1
@@ -189,7 +186,6 @@ class Field
       end
     end.compact.reduce(&:+)
     b = -9999 if b.nil?
-    #puts "b is #{b}"
     b
   end
 
