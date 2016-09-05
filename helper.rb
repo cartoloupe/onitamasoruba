@@ -1,4 +1,4 @@
-  def d(position)
+  def putsd(position)
     display = position.flatten.each_slice(5).map do |l|
       l.join("|")
     end
