@@ -85,7 +85,7 @@ RSpec.describe Field do
     it "moves can be evaluated before making them" do
       move = subject.moves.first
       subject.make move
-      expect(subject.evaluate move).to be_a Float
+      expect(subject.evaluate1 move).to be_a Float
     end
 
     context "when multiple possible moves with same score" do
@@ -102,9 +102,12 @@ RSpec.describe Field do
 
     context "playing the game by itself" do
       it "will reach an end state" do
-        2.times { subject.make_a_move! }
-        putsd subject.position
-        puts subject.score(subject.color)
+        11.times do
+          subject.make_a_move!
+          putsd subject.position
+          puts "black score: #{subject.score(:black)}"
+          puts "white score: #{subject.score(:white)}"
+        end
       end
     end
   end
@@ -139,7 +142,7 @@ RSpec.describe Field do
   let(:movement3) {
     %w(
       -- -- -- -- --
-      -- -- kk kk --
+      -- kk kk kk --
       -- -- cs -- --
       -- -- -- -- --
       -- -- -- -- --
@@ -147,8 +150,8 @@ RSpec.describe Field do
   }
   let(:movement4) {
     %w(
-      -- -- -- -- --
-      -- kk -- -- --
+      -- -- kk -- --
+      -- -- kk -- --
       -- -- cs -- --
       -- -- -- -- --
       -- -- -- -- --
