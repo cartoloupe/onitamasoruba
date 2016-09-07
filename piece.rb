@@ -1,8 +1,10 @@
 class Piece
-  attr_reader :x, :y
-  def initialize(vector)
+  attr_reader :x, :y, :piece
+
+  def initialize(vector, piece: piece)
     @x = vector[0]
     @y = vector[1]
+    @piece = piece
   end
 
   def +(vector)
@@ -18,7 +20,7 @@ class Piece
   end
 
   def to_s
-    "p[%d, %d]" % [x, y]
+    "p-#{piece}[%d, %d]" % [x, y]
   end
 
   def ==(vector)

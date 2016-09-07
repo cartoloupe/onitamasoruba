@@ -1,20 +1,17 @@
 require_relative 'vector'
 
 class Move
-  attr_accessor :piece, :vector, :destination
+  attr_accessor :piece, :vector, :destination, :movement
 
-  def initialize(piece, vector)
+  def initialize(piece, vector, movement)
     @piece = piece
     @vector = vector
     @destination = piece + vector
+    @movement = movement
   end
 
   def to_s
-    "p[%d, %d] to s[%d, %d]" % [piece.x, piece.y, destination.x, destination.y]
-  end
-
-  def to_str
-    "p[%d, %d] to s[%d, %d]" % [piece.x, piece.y, destination.x, destination.y]
+    "p-#{piece.piece}[%d, %d] to s[%d, %d]" % [piece.x, piece.y, destination.x, destination.y]
   end
 
   def legal? span

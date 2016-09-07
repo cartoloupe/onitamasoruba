@@ -3,6 +3,7 @@ require_relative 'vector'
 require_relative 'move'
 require_relative 'piece'
 require_relative 'position_reader'
+require_relative 'movement'
 
 class Field
   include PositionReader
@@ -10,10 +11,21 @@ class Field
 
   def initialize(stringified_position)
     @position = read stringified_position[0..49]
-    @bmovement = read2 stringified_position[50..149]
-    @mmovement = read stringified_position[150..199]
-    @wmovement = read2 stringified_position[200..299]
+    @bmovement = [
+      Movement.new(stringified_position[50..99]),
+      Movement.new(stringified_position[100..149]),
+    ]
+    @mmovement = Movement.new(stringified_position[150..199])
+    @wmovement = [
+      Movement.new(stringified_position[200..249]),
+      Movement.new(stringified_position[250..299]),
+    ]
     @turn = stringified_position[300].to_i
+  end
+
+  def movements
+    [bmovement, mmovement, wmovement].flatten.join
+
   end
 
   def to_s
@@ -93,7 +105,7 @@ class Field
     moveset1 = vectorify(movement.first, /kk/)
     moves = pieces.flat_map do |piece|
       moveset1.map do |move|
-        Move.new(piece, move)
+        Move.new(piece, move, movement.first)
       end
     end
 
@@ -107,11 +119,26 @@ class Field
   end
 
   def make move
-    piece = position[move.piece.position[1]][move.piece.position[0]]
-    position[move.piece.position[1]][move.piece.position[0]] = "--"
-    position[move.destination.position[1]][move.destination.position[0]] = piece
+    piece_x       = move.piece.position[1]
+    piece_y       = move.piece.position[0]
+    destination_x = move.destination.position[1]
+    destination_y = move.destination.position[0]
 
+    piece = position[piece_x][piece_y]
+            position[piece_x][piece_y] = "--"
+            position[destination_x][destination_y] = piece
+
+    update_movements move.movement
     update_turn
+  end
+
+  def update_movements movement
+    if turn == 0
+      self.bmovement = self.bmovement.reject{|m| m == movement} << mmovement
+    else
+      self.wmovement = self.wmovement.reject{|m| m == movement} << mmovement
+    end
+    self.mmovement = movement
   end
 
   def update_turn
@@ -139,10 +166,15 @@ class Field
     future = Field.new(to_s)
     future.make move
     future.make_a_move! :evaluate2
+    puts "\tevaluate3:: best black score: #{future.score(:black)}"
+    puts "\tevaluate3:: best white score: #{future.score(:white)}"
     future.score(color)
   end
 
   def make_a_move! evaluate=:evaluate3
+    puts "====#{color}'s move...'"
+    return nil if win_condition?
+
     t = moves.map do |move|
       [send(evaluate, move), move]
     end
@@ -151,9 +183,25 @@ class Field
     high_moves = t.select{|move| move.first == max_score}
 
     picked_move = high_moves.shuffle.first[1]
+    puts "#{evaluate.to_s}:: max_score: #{max_score}, picked_move: #{picked_move}"
 
     make picked_move
     picked_move
+  end
+
+  def win_condition?
+    return true if king_missing?
+    return true if king_win?
+  end
+
+  def king_missing?
+    !king_present?(:black) ||
+    !king_present?(:white)
+  end
+
+  def king_win?
+    distance_to_win(:black) == 0 ||
+    distance_to_win(:white) == 0
   end
 
   private
@@ -203,7 +251,7 @@ class Field
     pieces = []
     position.each_with_index do |r, ri|
       r.each_with_index do |c, ci|
-        pieces << Piece.new([ci, ri]) if c =~ filter
+        pieces << Piece.new([ci, ri], piece: c) if c =~ filter
       end
     end
     pieces
