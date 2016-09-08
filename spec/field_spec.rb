@@ -9,7 +9,7 @@ RSpec.describe Field do
     expect(stringified_position.length).to eq 301
     expect(subject.position.flatten).to eq starting_position
     expect(subject.bmovement.flatten.join).to eq [movement3, movement4].flatten.join
-    expect(subject.mmovement.flatten.join).to eq [movement3].flatten.join
+    expect(subject.mmovement.to_s).to eq [movement3].flatten.join
     expect(subject.wmovement.flatten.join).to eq [movement4, movement3].flatten.join
   end
 
@@ -100,13 +100,19 @@ RSpec.describe Field do
       expect{subject.make_a_move!}.to change {subject.turn}
     end
 
+    it "rotates movements" do
+      expect{subject.make_a_move!}.to change {subject.movements}
+    end
+
     context "playing the game by itself" do
       it "will reach an end state" do
-        11.times do
-          subject.make_a_move!
-          putsd subject.position
-          puts "black score: #{subject.score(:black)}"
-          puts "white score: #{subject.score(:white)}"
+        12.times do
+          r = subject.make_a_move!
+          unless r.nil?
+            putsd subject.position
+            puts "black score: #{subject.score(:black)}"
+            puts "white score: #{subject.score(:white)}"
+          end
         end
       end
     end
