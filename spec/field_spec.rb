@@ -1,5 +1,6 @@
-require_relative '../field.rb'
-require_relative '../helper.rb'
+require 'spec_helper'
+require 'field'
+require 'helper'
 
 RSpec.describe Field do
   let(:span) { 2 }
