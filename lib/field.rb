@@ -166,13 +166,12 @@ class Field
     future = Field.new(to_s)
     future.make move
     future.make_a_move! :evaluate2
-    puts "\tevaluate3:: best black score: #{future.score(:black)}"
-    puts "\tevaluate3:: best white score: #{future.score(:white)}"
+    #puts "\tevaluate3:: best black score: #{future.score(:black)}"
+    #puts "\tevaluate3:: best white score: #{future.score(:white)}"
     future.score(color)
   end
 
   def make_a_move! evaluate=:evaluate3
-    puts "====#{color}'s move...'"
     return nil if win_condition?
 
     t = moves.map do |move|
@@ -183,7 +182,7 @@ class Field
     high_moves = t.select{|move| move.first == max_score}
 
     picked_move = high_moves.shuffle.first[1]
-    puts "#{evaluate.to_s}:: max_score: #{max_score}, picked_move: #{picked_move}"
+    #puts "#{evaluate.to_s}:: max_score: #{max_score}, picked_move: #{picked_move}"
 
     make picked_move
     picked_move

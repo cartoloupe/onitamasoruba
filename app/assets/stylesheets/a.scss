@@ -1,0 +1,77 @@
+// Place all the styles related to the A controller here.
+// They will automatically be included in application.css.
+// You can use Sass (SCSS) here: http://sass-lang.com/
+
+table {
+  //table-layout: fixed;
+
+  &.movements {
+    width: 400px;
+    height: 200px;
+  }
+}
+
+td .small {
+  width: 30px;
+  height: 30px;
+  //position: relative;
+  background-color: #F5F5DC;
+}
+
+td.movement {
+}
+
+.square .big {
+  width: 50px;
+  height: 50px;
+  background-color: #009;
+  //position: absolute;
+  color: white;
+  font-color: white;
+}
+
+td .square .small {
+}
+
+.blank {
+  background-color: #F5F5DC;
+}
+
+.blank {
+  background-color: #F5F5DC;
+}
+
+.cs, .bs, .ws, .wc, .bc {
+  border-radius: 50%;
+}
+
+.bs, .ws {
+  border-radius: 3%;
+  -ms-transform: rotate(45deg); /* IE 9 */
+  -webkit-transform: rotate(45deg); /* Chrome, Safari, Opera */
+  transform: rotate(45deg);
+}
+
+.bs {
+  background-color: #000;
+}
+
+.ws {
+  background-color: #CCC;
+}
+
+.bc, .wc {
+  border-radius: 50%;
+}
+
+.bc, {
+  background-color: #000;
+}
+
+.wc {
+  background-color: #CCC;
+}
+
+.legal {
+  background-color: #808000;
+}

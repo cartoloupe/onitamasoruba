@@ -1,0 +1,26 @@
+<h1>A#welcome</h1>
+<p>Find me in app/views/a/welcome.html.erb</p>
+
+<table class="movements">
+  <tr>
+    <td> <%= render 'movement', m: @field.wmovement.first.flatten %> </td>
+    <td> <%= render 'movement', m: @field.wmovement.last.flatten  %> </td>
+  </tr>
+</table>
+
+
+<table width="60%">
+  <tr>
+    <td width="20%"> <%= render 'movement', m: @field.mmovement.flatten %> </td>
+    <td width="35%"> <%= render 'board', m: @field.position.flatten %> </td>
+    <td width="20%"> <%= render 'movement', m: @field.mmovement.flatten %> </td>
+  </tr>
+</table>
+
+<table class="movements">
+  <tr>
+    <td> <%= render 'movement', m: @field.bmovement.first.flatten %> </td>
+    <td> <%= render 'movement', m: @field.bmovement.last.flatten  %> </td>
+  </tr>
+</table>
+

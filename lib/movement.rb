@@ -13,6 +13,10 @@ class Movement
     movement.flatten.join
   end
 
+  def flatten
+    movement.flatten
+  end
+
   def each_with_index &block
     movement.each_with_index &block
   end
