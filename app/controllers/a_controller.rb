@@ -45,10 +45,24 @@ class AController < ApplicationController
   MOVEMENTS= [BMOVEMENT, MMOVEMENT, WMOVEMENT]
   TURN=0
   STRINGIFIED_POSITION= [STARTING_POSITION, MOVEMENTS, TURN].flatten.join
+  STARTING_POSITION=STRINGIFIED_POSITION
 
   def welcome
-    @field = Field.new(STRINGIFIED_POSITION)
+
+    if welcome_params[:position]
+      position = welcome_params[:position]
+      @field = Field.new(position)
+    else
+      puts STRINGIFIED_POSITION
+      @field = Field.new(STRINGIFIED_POSITION)
+    end
+
+  end
 
 
+  def welcome_params
+    params
+      .permit(:position)
+      #.require(:position)
   end
 end
