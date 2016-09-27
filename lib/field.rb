@@ -1,4 +1,4 @@
-require 'pry'
+require 'pry' unless Rails.env.production?
 require_relative 'vector'
 require_relative 'move'
 require_relative 'piece'
