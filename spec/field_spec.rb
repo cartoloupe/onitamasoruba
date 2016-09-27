@@ -30,14 +30,27 @@ RSpec.describe Field do
     expect(subject.send(:vectorify, subject.bmovement.first, /kk/)).to be_an Array
   end
 
-  it "can vectorize pieces" do
-    expect(subject.bpieces).to be_an Array
-    expect(subject.bpieces).to all( be_a Piece )
+  context "understanding pieces" do
+    it "can vectorize pieces" do
+      expect(subject.bpieces).to be_an Array
+      expect(subject.bpieces).to all( be_a Piece )
+      expect(
+        subject.bpieces.map(&:coordinates)
+      ).to eq [[4, 0], [4, 1], [4, 2], [4, 3], [4, 4]]
+    end
   end
 
-  it "knows possible moves" do
-    expect(subject.moves).to be_an Array
-    expect(subject.moves).to all( be_a Move )
+  describe "#moves" do
+    it "knows possible moves" do
+      expect(subject.moves).to be_an Array
+      expect(subject.moves).to all( be_a Move )
+    end
+
+    describe "#valid_moves" do
+      it "can organize moves in a lookup" do
+        expect(subject.valid_moves).to be_an Hash
+      end
+    end
   end
 
   context "when evaluating moves" do

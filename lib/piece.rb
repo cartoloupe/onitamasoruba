@@ -30,5 +30,6 @@ class Piece
   def position
     [x, y]
   end
+  alias_method :coordinates, :position
 
 end

@@ -1,5 +1,10 @@
-<%= content_tag :div, nil, id: "game", data: { position: @field.position.flatten } %>
-<div id="gome"></div>
+<%= content_tag :div,
+  nil,
+  id: "game",
+  data: {
+    position: @field.position.flatten,
+    valid_moves: @field.valid_moves,
+  } %>
 <table id="board"></table>
 
 <table class="movements">
@@ -9,12 +14,9 @@
   </tr>
 </table>
 
-
-<table width="60%">
+<table class="movements">
   <tr>
-    <td width="20%"> <%= render 'movement', m: @field.mmovement.flatten %> </td>
-    <td width="35%"> <%= render 'board', m: @field.position.flatten %> </td>
-    <td width="20%"> <%= render 'movement', m: @field.mmovement.flatten %> </td>
+    <td> <%= render 'movement', m: @field.mmovement.flatten %> </td>
   </tr>
 </table>
 
@@ -28,7 +30,7 @@
 
 <script>
   // create board
-  var bo = jsboard.board({attach:"gome", size:"5x5"});
+  var bo = jsboard.board({attach:"game", size:"5x5"});
   bo.cell("each").style({width:"45px", height:"50px"});
 
   // setup pieces
@@ -49,8 +51,6 @@
     }
   });
 
-
-
   // show new locations
   function showMoves2(piece) {
 
@@ -59,12 +59,18 @@
       // need to access the parent of the piece because pieces are 
       // always contained within in cells
       var loc = bo.cell(piece.parentNode).where();
+      window.loc = loc;
+
+      /*
       var newLocs = [
           [loc[0]-1,loc[1]-2], [loc[0]-1,loc[1]+2],
           [loc[0]-2,loc[1]-1], [loc[0]-2,loc[1]+1],
           [loc[0]+1,loc[1]-2], [loc[0]+1,loc[1]+2],
           [loc[0]+2,loc[1]-1], [loc[0]+2,loc[1]+1]
       ];
+      */
+      var newLocs = $("#game").data("valid-moves")["["+loc[0]+", "+loc[1]+"]"]
+      window.newLocs = newLocs;
 
       // locations to move to 
       // to use JavaScript DOM functions such as classList you need
@@ -80,7 +86,7 @@
         var old_position = bo.cell(piece.parentElement).where();
         var new_position = bo.cell(this).where();
 
-        console.log("move: " + old_position + " to " + new_position);
+        console.log("m" + old_position + "->" + new_position);
         window.p = piece;
           bo.cell(this).place(piece);
           bo.removeEvents("click", movePiece2);

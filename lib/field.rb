@@ -90,6 +90,25 @@ class Field
     return :white if turn == 1
   end
 
+  def valid_moves
+    Rails.logger.info "moves.to_s:"
+    Rails.logger.info moves.map(&:to_s)
+    grouped =
+      moves
+      .map{|move|
+        [move.piece.coordinates, move.destination.coordinates]
+      }
+      .group_by{|coordinates, _| coordinates}
+
+    grouped.keys.each{|k|
+      grouped[k] = grouped[k].map{|src,dst| dst}
+    }
+
+    Rails.logger.info "valid_moves:"
+    Rails.logger.info grouped
+    grouped
+  end
+
   def moves
     case turn
     when 0
@@ -109,6 +128,8 @@ class Field
       end
     end
 
+    Rails.logger.info "all moves:"
+    Rails.logger.info moves.map(&:to_s)
     t = moves.select do |move|
       move.legal? CELLSIZE
     end
@@ -248,9 +269,18 @@ class Field
 
   def get_pieces position, filter
     pieces = []
+=begin
+    position.each_with_index do |r, ri|
+      s = ""
+      r.each_with_index do |c, ci|
+        s += "[%i,%i:%s]" % [ri, ci, c]
+      end
+      p s
+    end
+=end
     position.each_with_index do |r, ri|
       r.each_with_index do |c, ci|
-        pieces << Piece.new([ci, ri], piece: c) if c =~ filter
+        pieces << Piece.new([ri, ci], piece: c) if c =~ filter
       end
     end
     pieces
