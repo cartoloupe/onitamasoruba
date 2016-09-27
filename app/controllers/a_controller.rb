@@ -48,6 +48,7 @@ class AController < ApplicationController
   STARTING_POSITION=STRINGIFIED_POSITION
 
   def welcome
+    Rails.logger.info "action: a#welcome"
 
     if welcome_params[:position]
       position = welcome_params[:position]
