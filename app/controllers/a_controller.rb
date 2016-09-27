@@ -1,3 +1,5 @@
+require 'field'
+
 class AController < ApplicationController
   STARTING_POSITION=
     %w(
