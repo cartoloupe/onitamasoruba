@@ -37,6 +37,7 @@ group :development, :test do
   gem 'rspec-expectations'
   gem 'rspec-mocks'
   gem 'pry'
+  gem 'sqlite3'
 end
 
 

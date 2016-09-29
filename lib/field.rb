@@ -122,6 +122,8 @@ class Field
     end
 
     moveset1 = vectorify(movement.first, /kk/)
+    Rails.logger.info "moveset1"
+    Rails.logger.info moveset1
     moves = pieces.flat_map do |piece|
       moveset1.map do |move|
         Move.new(piece, move, movement.first)
@@ -130,12 +132,19 @@ class Field
 
     Rails.logger.info "all moves:"
     Rails.logger.info moves.map(&:to_s)
-    t = moves.select do |move|
+    t = moves
+    t = t.select do |move|
       move.legal? CELLSIZE
     end
+    Rails.logger.info "pieces:"
+    Rails.logger.info pieces
     t = t.reject do |move|
       pieces.include? move.destination
     end
+=begin
+=end
+    Rails.logger.info "filtered moves:"
+    Rails.logger.info t.map(&:to_s)
     t
   end
 
@@ -261,7 +270,7 @@ class Field
     vectors = []
     movement.each_with_index do |r, ri|
       r.each_with_index do |c, ci|
-        vectors << Vector.new([ci, ri]) if c =~ filter
+        vectors << Vector.new([ri, ci]) if c =~ filter
       end
     end
     vectors = vectors.map{|v| v + Vector.new([-2, -2])}

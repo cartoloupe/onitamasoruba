@@ -45,6 +45,8 @@
     if (true) {
       if (d != "--") {
         piece = this[d].clone();
+        window.piece = piece;
+        $(piece).addClass(d);
         piece.addEventListener("click", function(){ showMoves2(this); })
         bo.cell([x,y]).place(piece);
       }
