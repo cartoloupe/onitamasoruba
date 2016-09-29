@@ -62,10 +62,17 @@ class AController < ApplicationController
 
   end
 
+  def welcome_move
+    position = welcome_params[:position]
+    move = Move.new welcome_params[:move]
+
+    @field = Field.new(position)
+    @field.make move
+  end
 
   def welcome_params
     params
-      .permit(:position)
+      .permit(:position, :move)
       #.require(:position)
   end
 end

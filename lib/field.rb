@@ -1,12 +1,13 @@
-require 'pry' unless Rails.env.production?
 require_relative 'vector'
 require_relative 'move'
 require_relative 'piece'
 require_relative 'position_reader'
 require_relative 'movement'
+require_relative 'logger_helper'
 
 class Field
   include PositionReader
+  include LoggerHelper
   attr_accessor :position, :bmovement, :mmovement, :wmovement, :turn
 
   def initialize(stringified_position)
@@ -91,8 +92,8 @@ class Field
   end
 
   def valid_moves
-    Rails.logger.info "moves.to_s:"
-    Rails.logger.info moves.map(&:to_s)
+    log "moves.to_s:"
+    log moves.map(&:to_s)
     grouped =
       moves
       .map{|move|
@@ -104,8 +105,8 @@ class Field
       grouped[k] = grouped[k].map{|src,dst| dst}
     }
 
-    Rails.logger.info "valid_moves:"
-    Rails.logger.info grouped
+    log "valid_moves:"
+    log grouped
     grouped
   end
 
@@ -122,29 +123,31 @@ class Field
     end
 
     moveset1 = vectorify(movement.first, /kk/)
-    Rails.logger.info "moveset1"
-    Rails.logger.info moveset1
+
+    log "moveset1"
+    log moveset1
+
     moves = pieces.flat_map do |piece|
       moveset1.map do |move|
         Move.new(piece, move, movement.first)
       end
     end
 
-    Rails.logger.info "all moves:"
-    Rails.logger.info moves.map(&:to_s)
+    log "all moves:"
+    log moves.map(&:to_s)
     t = moves
     t = t.select do |move|
       move.legal? CELLSIZE
     end
-    Rails.logger.info "pieces:"
-    Rails.logger.info pieces
+    log "pieces:"
+    log pieces
     t = t.reject do |move|
       pieces.include? move.destination
     end
 =begin
 =end
-    Rails.logger.info "filtered moves:"
-    Rails.logger.info t.map(&:to_s)
+    log "filtered moves:"
+    log t.map(&:to_s)
     t
   end
 
@@ -153,12 +156,13 @@ class Field
     piece_y       = move.piece.position[0]
     destination_x = move.destination.position[1]
     destination_y = move.destination.position[0]
+    movement = move.movement
 
     piece = position[piece_x][piece_y]
             position[piece_x][piece_y] = "--"
             position[destination_x][destination_y] = piece
 
-    update_movements move.movement
+    update_movements movement
     update_turn
   end
 
