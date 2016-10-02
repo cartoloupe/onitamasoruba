@@ -30,14 +30,27 @@ RSpec.describe Field do
     expect(subject.send(:vectorify, subject.bmovement.first, /kk/)).to be_an Array
   end
 
-  it "can vectorize pieces" do
-    expect(subject.bpieces).to be_an Array
-    expect(subject.bpieces).to all( be_a Piece )
+  context "understanding pieces" do
+    it "can vectorize pieces" do
+      expect(subject.bpieces).to be_an Array
+      expect(subject.bpieces).to all( be_a Piece )
+      expect(
+        subject.bpieces.map(&:coordinates)
+      ).to eq [[4, 0], [4, 1], [4, 2], [4, 3], [4, 4]]
+    end
   end
 
-  it "knows possible moves" do
-    expect(subject.moves).to be_an Array
-    expect(subject.moves).to all( be_a Move )
+  describe "#moves" do
+    it "knows possible moves" do
+      expect(subject.moves).to be_an Array
+      expect(subject.moves).to all( be_a Move )
+    end
+
+    describe "#valid_moves" do
+      it "can organize moves in a lookup" do
+        expect(subject.valid_moves).to be_an Hash
+      end
+    end
   end
 
   context "when evaluating moves" do
@@ -79,13 +92,13 @@ RSpec.describe Field do
       move = subject.moves.first
       puts move
       putsd subject.position
-      subject.make move
+      subject.make *move.to_splat
       putsd subject.position
     end
 
     it "moves can be evaluated before making them" do
       move = subject.moves.first
-      subject.make move
+      subject.make *move.to_splat
       expect(subject.evaluate1 move).to be_a Float
     end
 
@@ -107,7 +120,7 @@ RSpec.describe Field do
 
     context "playing the game by itself" do
       it "will reach an end state" do
-        12.times do
+        4.times do
           r = subject.make_a_move!
           unless r.nil?
             putsd subject.position

@@ -1,12 +1,66 @@
-require 'pry'
 require_relative 'vector'
 require_relative 'move'
 require_relative 'piece'
 require_relative 'position_reader'
 require_relative 'movement'
+require_relative 'logger_helper'
 
 class Field
   include PositionReader
+  include LoggerHelper
+
+  STARTING_BOARD=
+    %w(
+      wc wc ws wc wc
+      -- -- -- -- --
+      -- -- -- -- --
+      -- -- -- -- --
+      bc bc bs bc bc
+    )
+  MOVEMENT1=
+    %w(
+      -- -- -- -- --
+      -- kk -- kk --
+      kk -- cs -- kk
+      -- -- -- -- --
+      -- -- -- -- --
+    )
+  MOVEMENT2=
+    %w(
+      -- -- -- -- --
+      -- -- kk -- --
+      -- kk cs kk --
+      -- -- kk -- --
+      -- -- -- -- --
+    )
+  MOVEMENT3=
+    %w(
+      -- -- -- -- --
+      -- kk kk kk --
+      -- -- cs -- --
+      -- -- -- -- --
+      -- -- -- -- --
+    )
+  MOVEMENT4=
+    %w(
+      -- -- kk -- --
+      -- -- kk -- --
+      -- -- cs -- --
+      -- -- -- -- --
+      -- -- -- -- --
+    )
+  BMOVEMENT= [MOVEMENT3, MOVEMENT4]
+  MMOVEMENT= [MOVEMENT3]
+  WMOVEMENT= [MOVEMENT4, MOVEMENT3]
+  MOVEMENTS= [BMOVEMENT, MMOVEMENT, WMOVEMENT]
+  TURN=0
+  STRINGIFIED_POSITION= [STARTING_BOARD, MOVEMENTS, TURN].flatten.join
+
+  def self.default_starting_position
+    STRINGIFIED_POSITION
+  end
+
+
   attr_accessor :position, :bmovement, :mmovement, :wmovement, :turn
 
   def initialize(stringified_position)
@@ -90,6 +144,25 @@ class Field
     return :white if turn == 1
   end
 
+  def valid_moves
+    #log "moves.to_s:"
+    #log moves.map(&:to_s)
+    grouped =
+      moves
+      .map{|move|
+        [move.piece.coordinates, move.destination.coordinates]
+      }
+      .group_by{|coordinates, _| coordinates}
+
+    grouped.keys.each{|k|
+      grouped[k] = grouped[k].map{|src,dst| dst}
+    }
+
+    #log "valid_moves:"
+    #log grouped
+    grouped
+  end
+
   def moves
     case turn
     when 0
@@ -103,32 +176,47 @@ class Field
     end
 
     moveset1 = vectorify(movement.first, /kk/)
+
+    #log "moveset1"
+    #log moveset1
+
     moves = pieces.flat_map do |piece|
       moveset1.map do |move|
         Move.new(piece, move, movement.first)
       end
     end
 
-    t = moves.select do |move|
+    #log "all moves:"
+    #log moves.map(&:to_s)
+    t = moves
+    t = t.select do |move|
       move.legal? CELLSIZE
     end
+    #log "pieces:"
+    #log pieces
     t = t.reject do |move|
       pieces.include? move.destination
     end
+
+    #log "filtered moves:"
+    #log t.map(&:to_s)
     t
   end
 
-  def make move
-    piece_x       = move.piece.position[1]
-    piece_y       = move.piece.position[0]
-    destination_x = move.destination.position[1]
-    destination_y = move.destination.position[0]
-
+  def make piece_x, piece_y, destination_x, destination_y, movement_idx
     piece = position[piece_x][piece_y]
             position[piece_x][piece_y] = "--"
             position[destination_x][destination_y] = piece
 
-    update_movements move.movement
+
+    case turn
+    when 0
+      movement = bmovement[movement_idx.to_i]
+    when 1
+      movement = wmovement[movement_idx.to_i]
+    end
+
+    update_movements movement
     update_turn
   end
 
@@ -151,20 +239,20 @@ class Field
 
   def evaluate1 move
     future = Field.new(to_s)
-    future.make move
+    future.make *move.to_splat
     future.score(color)
   end
 
   def evaluate2 move
     future = Field.new(to_s)
-    future.make move
+    future.make *move.to_splat
     future.make_a_move! :evaluate1
     future.score(color)
   end
 
   def evaluate3 move
     future = Field.new(to_s)
-    future.make move
+    future.make *move.to_splat
     future.make_a_move! :evaluate2
     #puts "\tevaluate3:: best black score: #{future.score(:black)}"
     #puts "\tevaluate3:: best white score: #{future.score(:white)}"
@@ -184,7 +272,7 @@ class Field
     picked_move = high_moves.shuffle.first[1]
     #puts "#{evaluate.to_s}:: max_score: #{max_score}, picked_move: #{picked_move}"
 
-    make picked_move
+    make *picked_move.to_splat
     picked_move
   end
 
@@ -240,7 +328,7 @@ class Field
     vectors = []
     movement.each_with_index do |r, ri|
       r.each_with_index do |c, ci|
-        vectors << Vector.new([ci, ri]) if c =~ filter
+        vectors << Vector.new([ri, ci]) if c =~ filter
       end
     end
     vectors = vectors.map{|v| v + Vector.new([-2, -2])}
@@ -248,9 +336,18 @@ class Field
 
   def get_pieces position, filter
     pieces = []
+=begin
+    position.each_with_index do |r, ri|
+      s = ""
+      r.each_with_index do |c, ci|
+        s += "[%i,%i:%s]" % [ri, ci, c]
+      end
+      p s
+    end
+=end
     position.each_with_index do |r, ri|
       r.each_with_index do |c, ci|
-        pieces << Piece.new([ci, ri], piece: c) if c =~ filter
+        pieces << Piece.new([ri, ci], piece: c) if c =~ filter
       end
     end
     pieces
