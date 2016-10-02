@@ -7,6 +7,8 @@
   } %>
 <table id="board"></table>
 
+<%= link_to "Start Over", root_path %>
+
 <table class="movements">
   <tr>
     <td> <%= render 'movement', m: @field.wmovement.first.flatten %> </td>
@@ -87,8 +89,40 @@
       function movePiece2() {
         var old_position = bo.cell(piece.parentElement).where();
         var new_position = bo.cell(this).where();
+        window.op = old_position;
 
-        console.log("m" + old_position + "->" + new_position);
+        move = "m" + old_position + "->" + new_position;
+        url_split = document.URL.split("/");
+        position_string = url_split[url_split.length - 1];
+
+        $.ajax({
+          type: "POST",
+          url: "/a/welcome_move",
+          data: {
+            move: {
+              piece_x: old_position[0],
+              piece_y: old_position[1],
+              destination_x: new_position[0],
+              destination_y: new_position[1],
+              movement: "TODO"
+            },
+            position: position_string
+          },
+          success: function(data){
+            window.d = data;
+            console.log("getting it...");
+            console.log(data);
+            base_url = window.location.protocol + "//" + window.location.host + "/"
+            new_url = base_url + "/a/welcome/"+data.position;
+            window.location.href = new_url;
+            //window.location.reload(true);
+          },
+          error: function(data){
+            window.d = data;
+            console.log("updated");
+            console.log("something went wrong...");
+          },
+        })
         window.p = piece;
           bo.cell(this).place(piece);
           bo.removeEvents("click", movePiece2);

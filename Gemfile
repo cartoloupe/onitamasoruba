@@ -36,6 +36,7 @@ group :development, :test do
   gem 'rspec-core'
   gem 'rspec-expectations'
   gem 'rspec-mocks'
+  gem 'rspec-rails'
   gem 'pry'
   gem 'sqlite3'
 end

@@ -92,13 +92,13 @@ RSpec.describe Field do
       move = subject.moves.first
       puts move
       putsd subject.position
-      subject.make move
+      subject.make *move.to_splat
       putsd subject.position
     end
 
     it "moves can be evaluated before making them" do
       move = subject.moves.first
-      subject.make move
+      subject.make *move.to_splat
       expect(subject.evaluate1 move).to be_a Float
     end
 
@@ -120,7 +120,7 @@ RSpec.describe Field do
 
     context "playing the game by itself" do
       it "will reach an end state" do
-        12.times do
+        4.times do
           r = subject.make_a_move!
           unless r.nil?
             putsd subject.position

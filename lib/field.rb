@@ -8,6 +8,59 @@ require_relative 'logger_helper'
 class Field
   include PositionReader
   include LoggerHelper
+
+  STARTING_BOARD=
+    %w(
+      wc wc ws wc wc
+      -- -- -- -- --
+      -- -- -- -- --
+      -- -- -- -- --
+      bc bc bs bc bc
+    )
+  MOVEMENT1=
+    %w(
+      -- -- -- -- --
+      -- kk -- kk --
+      kk -- cs -- kk
+      -- -- -- -- --
+      -- -- -- -- --
+    )
+  MOVEMENT2=
+    %w(
+      -- -- -- -- --
+      -- -- kk -- --
+      -- kk cs kk --
+      -- -- kk -- --
+      -- -- -- -- --
+    )
+  MOVEMENT3=
+    %w(
+      -- -- -- -- --
+      -- kk kk kk --
+      -- -- cs -- --
+      -- -- -- -- --
+      -- -- -- -- --
+    )
+  MOVEMENT4=
+    %w(
+      -- -- kk -- --
+      -- -- kk -- --
+      -- -- cs -- --
+      -- -- -- -- --
+      -- -- -- -- --
+    )
+  BMOVEMENT= [MOVEMENT3, MOVEMENT4]
+  MMOVEMENT= [MOVEMENT3]
+  WMOVEMENT= [MOVEMENT4, MOVEMENT3]
+  MOVEMENTS= [BMOVEMENT, MMOVEMENT, WMOVEMENT]
+  TURN=0
+  STRINGIFIED_POSITION= [STARTING_BOARD, MOVEMENTS, TURN].flatten.join
+
+  def self.default_starting_position
+    STRINGIFIED_POSITION
+  end
+
+
   attr_accessor :position, :bmovement, :mmovement, :wmovement, :turn
 
   def initialize(stringified_position)
@@ -92,8 +145,8 @@ class Field
   end
 
   def valid_moves
-    log "moves.to_s:"
-    log moves.map(&:to_s)
+    #log "moves.to_s:"
+    #log moves.map(&:to_s)
     grouped =
       moves
       .map{|move|
@@ -105,8 +158,8 @@ class Field
       grouped[k] = grouped[k].map{|src,dst| dst}
     }
 
-    log "valid_moves:"
-    log grouped
+    #log "valid_moves:"
+    #log grouped
     grouped
   end
 
@@ -124,8 +177,8 @@ class Field
 
     moveset1 = vectorify(movement.first, /kk/)
 
-    log "moveset1"
-    log moveset1
+    #log "moveset1"
+    #log moveset1
 
     moves = pieces.flat_map do |piece|
       moveset1.map do |move|
@@ -133,31 +186,24 @@ class Field
       end
     end
 
-    log "all moves:"
-    log moves.map(&:to_s)
+    #log "all moves:"
+    #log moves.map(&:to_s)
     t = moves
     t = t.select do |move|
       move.legal? CELLSIZE
     end
-    log "pieces:"
-    log pieces
+    #log "pieces:"
+    #log pieces
     t = t.reject do |move|
       pieces.include? move.destination
     end
-=begin
-=end
-    log "filtered moves:"
-    log t.map(&:to_s)
+
+    #log "filtered moves:"
+    #log t.map(&:to_s)
     t
   end
 
-  def make move
-    piece_x       = move.piece.position[1]
-    piece_y       = move.piece.position[0]
-    destination_x = move.destination.position[1]
-    destination_y = move.destination.position[0]
-    movement = move.movement
-
+  def make piece_x, piece_y, destination_x, destination_y, movement
     piece = position[piece_x][piece_y]
             position[piece_x][piece_y] = "--"
             position[destination_x][destination_y] = piece
@@ -185,20 +231,20 @@ class Field
 
   def evaluate1 move
     future = Field.new(to_s)
-    future.make move
+    future.make *move.to_splat
     future.score(color)
   end
 
   def evaluate2 move
     future = Field.new(to_s)
-    future.make move
+    future.make *move.to_splat
     future.make_a_move! :evaluate1
     future.score(color)
   end
 
   def evaluate3 move
     future = Field.new(to_s)
-    future.make move
+    future.make *move.to_splat
     future.make_a_move! :evaluate2
     #puts "\tevaluate3:: best black score: #{future.score(:black)}"
     #puts "\tevaluate3:: best white score: #{future.score(:white)}"
@@ -218,7 +264,7 @@ class Field
     picked_move = high_moves.shuffle.first[1]
     #puts "#{evaluate.to_s}:: max_score: #{max_score}, picked_move: #{picked_move}"
 
-    make picked_move
+    make *picked_move.to_splat
     picked_move
   end
 

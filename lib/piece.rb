@@ -1,7 +1,7 @@
 class Piece
   attr_reader :x, :y, :piece
 
-  def initialize(vector, piece: piece)
+  def initialize(vector, piece: nil)
     @x = vector[0]
     @y = vector[1]
     @piece = piece
