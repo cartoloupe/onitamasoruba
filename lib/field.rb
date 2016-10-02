@@ -203,10 +203,18 @@ class Field
     t
   end
 
-  def make piece_x, piece_y, destination_x, destination_y, movement
+  def make piece_x, piece_y, destination_x, destination_y, movement_idx
     piece = position[piece_x][piece_y]
             position[piece_x][piece_y] = "--"
             position[destination_x][destination_y] = piece
+
+
+    case turn
+    when 0
+      movement = bmovement[movement_idx.to_i]
+    when 1
+      movement = wmovement[movement_idx.to_i]
+    end
 
     update_movements movement
     update_turn

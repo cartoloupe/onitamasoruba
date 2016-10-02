@@ -16,7 +16,7 @@ class AController < ApplicationController
     move_as_parameters = [
       welcome_params[:move][:piece_x].to_i,
       welcome_params[:move][:piece_y].to_i,
-      welcome_params[:move][:destination_y].to_i,
+      welcome_params[:move][:destination_x].to_i,
       welcome_params[:move][:destination_y].to_i,
       welcome_params[:move][:movement],
     ]
