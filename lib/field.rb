@@ -221,9 +221,10 @@ class Field
   end
 
   def update_movements movement
-    if turn == 0
+    case turn
+    when 0
       self.bmovement = self.bmovement.reject{|m| m == movement} << mmovement
-    else
+    when 1
       self.wmovement = self.wmovement.reject{|m| m == movement} << mmovement
     end
     self.mmovement = movement

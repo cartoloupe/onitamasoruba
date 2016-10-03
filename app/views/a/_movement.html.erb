@@ -2,13 +2,13 @@
 <% 5.times do %>
   <tr>
   <% 5.times do %>
-    <td class="square small">
+    <td>
       <% if local_assigns[:m] %>
         <% e = m.shift %>
         <% c = 'cs' if e == 'cs' %>
         <% c = 'blank' if e == '--' %>
         <% c = 'legal' if e == 'kk' %>
-        <div class="<%=c%>"><span><%=e%></span></div>
+        <div class="square small <%=c%>"></span></div>
       <% end %>
     </td>
   <% end %>
