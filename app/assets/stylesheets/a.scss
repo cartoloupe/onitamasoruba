@@ -2,44 +2,36 @@
 // They will automatically be included in application.css.
 // You can use Sass (SCSS) here: http://sass-lang.com/
 
-table {
-  //table-layout: fixed;
-
-  &.movements {
-    width: 400px;
-    height: 200px;
-  }
-}
-
-td.small {
-  width: 30px;
-  height: 30px;
-  //position: relative;
-  background-color: #F5F5DC;
-}
-
-td.movement {
-}
-
 td.green {
   background: lightgreen !important;
 }
 
-.square .big {
+.square.small {
   width: 50px;
   height: 50px;
-  background-color: #009;
   //position: absolute;
   color: white;
   font-color: white;
+  border-style: solid;
+  border-width: 1px;
+  padding: 0 0 0 0;
 }
 
 .blank {
-  background-color: #F5F5DC;
+  background-color: lightgray;
+  color: lightgray;
 }
 
-.cs, .bs, .ws, .wc, .bc {
+.cs, .bs, .ws, .wc, .bc, .legal {
   border-radius: 50%;
+}
+
+.cs {
+  background: red;
+  border-radius: 3%;
+  -ms-transform: rotate(45deg) scale(0.6, 0.6); /* IE 9 */
+  -webkit-transform: rotate(45deg) scale(0.6, 0.6); /* Chrome, Safari, Opera */
+  transform: rotate(45deg) scale(0.6, 0.6);
 }
 
 .bs, .ws {

@@ -1,14 +1,28 @@
+<% if @field.turn == 0 %>
+  <h1>Black's turn</h1>
+<% else %>
+  <h1>White's turn</h1>
+<% end %>
+
 <%= content_tag :div,
   nil,
   id: "game",
   data: {
     position: @field.position.flatten,
     valid_moves: @field.valid_moves,
-  } %>
-<table id="board"></table>
+  }
+%>
 
 <%= link_to "Start Over", root_path %>
 
+<%= content_tag :div,
+  nil,
+  id: "wmovements",
+  data: {
+    wmovement1: @field.wmovement.first.flatten,
+    wmovement2: @field.wmovement.last.flatten,
+  }
+%>
 <table class="movements">
   <tr>
     <td> <%= render 'movement', m: @field.wmovement.first.flatten %> </td>
@@ -19,6 +33,7 @@
 <table class="movements">
   <tr>
     <td> <%= render 'movement', m: @field.mmovement.flatten %> </td>
+    <td> --- </td>
   </tr>
 </table>
 
@@ -33,7 +48,7 @@
 <script>
   // create board
   var bo = jsboard.board({attach:"game", size:"5x5"});
-  bo.cell("each").style({width:"45px", height:"50px"});
+  bo.cell("each").style({width:"50px", height:"50px", background: "lightblue"});
 
   // setup pieces
   var bs = jsboard.piece({ text: "bs", width:"50px", height:"50px", fontsize: "40px", textAlign: "center", margin:"0 auto" });
