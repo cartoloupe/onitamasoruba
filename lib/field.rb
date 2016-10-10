@@ -209,6 +209,7 @@ class Field
             position[destination_x][destination_y] = piece
 
 
+    Rails.logger.info "making a move"
     case turn
     when 0
       movement = bmovement[movement_idx.to_i]
@@ -216,18 +217,41 @@ class Field
       movement = wmovement[movement_idx.to_i]
     end
 
-    update_movements movement
+    update_movements Movement.new(movement.to_s)
+    Rails.logger.debug "222222222222"
+    Rails.logger.debug print_movements
+    Rails.logger.debug "222222222222"
     update_turn
   end
 
   def update_movements movement
+    Rails.logger.debug "update_movements"
+    Rails.logger.debug "------------"
+    Rails.logger.debug print_movements
+    Rails.logger.debug "------------"
+    Rails.logger.debug "turn: #{turn}"
+    Rails.logger.debug "------------"
     case turn
     when 0
-      self.bmovement = self.bmovement.reject{|m| m == movement} << mmovement
+      idx = @bmovement.index(movement)
+      @bmovement.delete_at(idx) unless idx.nil?
+      @bmovement << Movement.new(mmovement.to_s)
+      Rails.logger.info "bmovement now: #{bmovement.map(&:to_s)}"
     when 1
-      self.wmovement = self.wmovement.reject{|m| m == movement} << mmovement
+      idx = @wmovement.index(movement)
+      @wmovement.delete_at(idx) unless idx.nil?
+      @wmovement << Movement.new(mmovement.to_s)
+      Rails.logger.info "wmovement now: #{wmovement.map(&:to_s)}"
     end
-    self.mmovement = movement
+    @mmovement = movement
+  end
+
+  def print_movements
+    [
+      self.bmovement.map(&:to_s),
+      self.mmovement,
+      self.wmovement.map(&:to_s),
+    ].join("\n")
   end
 
   def update_turn
